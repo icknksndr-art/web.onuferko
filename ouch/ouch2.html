@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Динамічний змінник</title>
+    <style>
+        * {
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body.light-mode {
+            background-color: #ffffff;
+            color: #333333;
+        }
+        
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        
+        .text-box {
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            background-color: #f0f0f0;
+            transition: all 0.3s;
+        }
+        
+        body.dark-mode .text-box {
+            background-color: #2d2d2d;
+            color: #ffffff;
+        }
+        
+        .controls {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        body.dark-mode .controls {
+            background-color: #2d2d2d;
+        }
+        
+        .control-group {
+            margin: 15px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        body.dark-mode .control-group {
+            border-bottom-color: #444;
+        }
+        
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .style-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .style-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background-color: #da190b;
+        }
+        
+        .toggle-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .toggle-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .hide-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .hide-btn:hover {
+            background-color: #e68900;
+        }
+        
+        .font-value {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <h1>Динамічний змінник</h1>
+    
+    <div class="text-box" id="textBox">
+        Спробуйте щось тут накляцати!
+    </div>
+    
+    <div class="controls">
+        <h3>Зміна стилю</h3>
+        
+        <div class="control-group">
+            <label>Text Color:</label>
+            <input type="color" id="textColor" value="#000000">
+        </div>
+        
+        <div class="control-group">
+            <label>Фоновий колір:</label>
+            <input type="color" id="bgColor" value="#f0f0f0">
+        </div>
+        
+        <div class="control-group">
+            <label>Розмір шрифта:</label>
+            <input type="range" id="fontSize" min="12" max="48" value="18">
+            <span id="fontSizeValue" class="font-value">18px</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Стиль тексту:</label>
+            <button id="boldBtn" class="style-btn">Жирний</button>
+            <button id="italicBtn" class="style-btn">Курсив</button>
+            <button id="underlineBtn" class="style-btn">Підкреслення</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Видимість:</label>
+            <button id="hideShowBtn" class="hide-btn">Сховати текст</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Тема:</label>
+            <button id="darkModeBtn" class="toggle-btn">Темна тема</button>
+        </div>
+        
+        <div class="control-group">
+            <button id="resetBtn" class="reset-btn">Прибрати задані стилі</button>
+        </div>
+    </div>
+
+    <script>
+        const textBox = document.getElementById('textBox');
+        const textColor = document.getElementById('textColor');
+        const bgColor = document.getElementById('bgColor');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
+        const hideShowBtn = document.getElementById('hideShowBtn');
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        let isVisible = true;
+        let isDarkMode = false;
+        function showError(message) {
+            alert(message);
+        }
+        function validateColor(color) {
+            const hexPattern = /^#[0-9A-Fa-f]{6}$/;
+            if (!hexPattern.test(color)) {
+                showError('Не прийнятний формат кольорів!');
+                return '#000000';
+            }
+            return color;
+        }
+        function validateFontSize(size) {
+            size = parseInt(size);
+            if (isNaN(size) || size < 12 || size > 48) {
+                showError('Розмір шрифта має бути від 12 до 48!');
+                return 18;
+            }
+            return size;
+        }
+        textColor.addEventListener('input', function(event) {
+            try {
+                let color = validateColor(event.target.value);
+                textBox.style.color = color;
+            } catch (error) {
+                console.error('Помилочка зі зміною кольору:', error);
+            }
+        });
+        bgColor.addEventListener('input', function(event) {
+            try {
+                let color = validateColor(event.target.value);
+                textBox.style.backgroundColor = color;
+            } catch (error) {
+                console.error('Помилочка зі зміною фону:', error);
+            }
+        });
+        fontSize.addEventListener('input', function(event) {
+            try {
+                let size = validateFontSize(event.target.value);
+                fontSizeValue.textContent = size + 'px';
+                textBox.style.fontSize = size + 'px';
+            } catch (error) {
+                console.error('Помилочка зі зміною шрифта:', error);
+            }
+        });
+        boldBtn.addEventListener('click', function() {
+            try {
+                if (textBox.style.fontWeight === 'bold') {
+                    textBox.style.fontWeight = 'normal';
+                } else {
+                    textBox.style.fontWeight = 'bold';
+                }
+            } catch (error) {
+                console.error('Помилка з перемиканням на жирний шрифт:', error);
+            }
+        });
+        italicBtn.addEventListener('click', function() {
+            try {
+                if (textBox.style.fontStyle === 'italic') {
+                    textBox.style.fontStyle = 'normal';
+                } else {
+                    textBox.style.fontStyle = 'italic';
+                }
+            } catch (error) {
+                console.error('Помилка з перемиканням на курсив:', error);
+            }
+        });
+        underlineBtn.addEventListener('click', function() {
+            try {
+                if (textBox.style.textDecoration === 'underline') {
+                    textBox.style.textDecoration = 'none';
+                } else {
+                    textBox.style.textDecoration = 'underline';
+                }
+            } catch (error) {
+                console.error('Помилка з перемиканням на підкреслення:', error);
+            }
+        });
+        hideShowBtn.addEventListener('click', function() {
+            try {
+                if (isVisible) {
+                    textBox.style.visibility = 'hidden';
+                    hideShowBtn.textContent = 'Показати текст';
+                    isVisible = false;
+                } else {
+                    textBox.style.visibility = 'visible';
+                    hideShowBtn.textContent = 'Приховати текст';
+                    isVisible = true;
+                }
+            } catch (error) {
+                console.error('Помилочка зі зміною видимості:', error);
+            }
+        });
+        darkModeBtn.addEventListener('click', function() {
+            try {
+                if (isDarkMode) {
+                    document.body.classList.remove('dark-mode');
+                    document.body.classList.add('light-mode');
+                    darkModeBtn.textContent = 'Темна тема';
+                    isDarkMode = false;
+                } else {
+                    document.body.classList.remove('light-mode');
+                    document.body.classList.add('dark-mode');
+                    darkModeBtn.textContent = 'Світла тема';
+                    isDarkMode = true;
+                }
+            } catch (error) {
+                console.error('Помилочка з переключенням на темну тему:', error);
+            }
+        });
+        resetBtn.addEventListener('click', function() {
+            try {
+                textBox.style.color = '';
+                textBox.style.backgroundColor = '';
+                textBox.style.fontSize = '';
+                textBox.style.fontWeight = '';
+                textBox.style.fontStyle = '';
+                textBox.style.textDecoration = '';
+                textBox.style.visibility = 'visible';
+                textColor.value = '#000000';
+                bgColor.value = '#f0f0f0';
+                fontSize.value = '18';
+                fontSizeValue.textContent = '18px';
+                hideShowBtn.textContent = 'Приховати текст';
+                isVisible = true;
+                if (isDarkMode) {
+                    document.body.classList.remove('dark-mode');
+                    document.body.classList.add('light-mode');
+                    darkModeBtn.textContent = 'Темна тема';
+                    isDarkMode = false;
+                }
+                alert('Всі стилі були прибрані до початкового стану!');
+                
+            } catch (error) {
+                console.error('Помилка в поверненні стилів:', error);
+                showError('Помилочка тут через зміну стилів!');
+            }
+        });
+    </script>
+</body>
+</html>
