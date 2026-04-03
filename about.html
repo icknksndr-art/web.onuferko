@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Profile</title>
+
+<style>
+:root {
+    --bg: #f2f4f7;
+    --card: #ffffff;
+    --text: #1e293b;
+}
+
+.dark {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.3s;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    animation: fadeIn 0.5s ease;
+}
+
+.post {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.skeleton {
+    height: 100px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ccc, #ddd, #ccc);
+    animation: loading 1.2s infinite;
+}
+
+@keyframes loading {
+    0% {background-position: -200px;}
+    100% {background-position: 200px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>👤 Profile</h1>
+        <button onclick="toggleTheme()">🌙</button>
+    </div>
+
+    <div id="user" class="card"></div>
+
+    <h2>📝 Posts</h2>
+
+    <div id="posts" class="card"></div>
+
+</div>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle("dark");
+}
+
+// skeleton loading
+document.getElementById("posts").innerHTML = "<div class='skeleton'></div>";
+
+async function loadData() {
+    const [userRes, postsRes] = await Promise.all([
+        fetch("https://jsonplaceholder.typicode.com/users/1"),
+        fetch("https://jsonplaceholder.typicode.com/posts?userId=1")
+    ]);
+
+    const user = await userRes.json();
+    const posts = await postsRes.json();
+
+    document.getElementById("user").innerHTML = `
+        <p><b>Name:</b> ${user.name}</p>
+        <p><b>Email:</b> ${user.email}</p>
+        <p><b>City:</b> ${user.address.city}</p>
+    `;
+
+    const postsDiv = document.getElementById("posts");
+    postsDiv.innerHTML = "";
+
+    posts.forEach(post => {
+        const el = document.createElement("div");
+        el.className = "post";
+
+        el.innerHTML = `
+            <h3>${post.title}</h3>
+            <p>${post.body}</p>
+        `;
+
+        postsDiv.appendChild(el);
+    });
+}
+
+loadData();
+</script>
+
+</body>
+</html>
