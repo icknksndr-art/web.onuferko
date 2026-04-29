@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="uk">
+    <meta charset="'UTF-8">
+    <head>
+        <h1><tittle>Сортуєм юзерів на малолєток і не малолєток</tittle></h1>
+    </head>
+    <style>
+        table { border-collapse: collapse; width: 67%; margin: 20px; }
+        th, td { border: 1px solid; }
+        th { background: #eeeeee; }
+    </style>
+    <body>
+        <h2>Дорослі юзери (>=18)</h2>
+        <table>
+            <td><th>Ім.я</th></td><td><th>Вік</th></td><td><th>Емейл</th></td>
+            <?php forEach ($adults as $users): ?>
+            <tr>
+                <td><?= $users['name']?></td>
+                <td><?= $users['age']?></td>
+                <td><?= $users ['email']?></td>
+            </tr>
+        </table>
+        <?php endforeach; ?></php>
+    </body>
+    <script src="work1.php"></script>
+</html>
