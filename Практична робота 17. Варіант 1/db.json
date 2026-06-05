@@ -1,0 +1,11 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "firstName": "Тарас",
+      "lastName": "Мельник",
+      "group": "ІПЗ-21",
+      "age": 17
+    }
+  ]
+}
